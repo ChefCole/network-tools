@@ -8,7 +8,9 @@ struct AppState{
     socket_url:String,
     btn_text:String,
     socket_content:String,
+    socket_input:String,
 }
+
 
 fn builder_ui() -> impl Widget<AppState> {
     //首先进行一个大的布局
@@ -25,19 +27,31 @@ fn socket_client_ui() -> impl Widget<AppState> {
     let text_box = TextBox::new().lens(AppState::socket_url).fix_width(200.).padding((10.,0.));
 
     let button = Button::new(|data: &AppState, _: &Env| format!("{}", data.btn_text)).on_click(|_,data,_|{
+        //调用异步方法进行连接socket
         data.btn_text = "断开".to_string();
-    }).fix_width(100.).fix_height(30.).padding((10.,0.));
+    }).fix_width(100.).fix_height(30.).padding((0.,0.));
 
     let title = Flex::row()
         .with_child(label)
         .with_child(text_box)
-        .with_child(button);
+        .with_child(button).align_left();
 
     let show_content = TextBox::multiline().lens(AppState::socket_content).disabled_if(|data,_|{true}).fix_width(400.).fix_height(300.);
 
+    let input_box = TextBox::new().lens(AppState::socket_input).fix_width(288.);
+
+    let input_btn = Button::new("发送").on_click(|_,_data,_|{
+        println!("发送");
+    }).fix_width(100.).fix_height(30.).padding((10.,0.));
+
+    let input = Flex::row()
+        .with_child(input_box)
+        .with_child(input_btn).align_left();
+
     Flex::column()
         .with_child(Padding::new(10., title))
-        .with_child(show_content)
+        .with_child(show_content.align_left().padding((10.,0.)))
+        .with_child(input.padding((10.,10.)))
 }
 
 //内容选项部分
@@ -74,9 +88,10 @@ fn main() {
         .resizable(false);
 
     let app_state = AppState {
-        socket_url: "".to_string(),
-        btn_text: "连接".to_string(),
-        socket_content:"欢迎使用网络工具".to_string(),
+        socket_url: "".to_string(), 
+        btn_text: "连接".to_string(), 
+        socket_content: "欢迎使用网络工具".to_string(), 
+        socket_input: "".to_string()
     };
 
     let _ = AppLauncher::with_window(win)
